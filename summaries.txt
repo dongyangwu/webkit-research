@@ -1,0 +1,30 @@
+下载webkit:
+git: git clone git://git.webkit.org/WebKit.git WebKit
+svn: svn co -r 200796 http://svn.webkit.org/repository/webkit/trunk webkitDir
+
+编译：
+./Tools/Scripts/set-webkit-configuration --asan
+./Tools/Scripts/build-webkit --debug
+
+调试准备：
+根据testcases找到对应的branch编号以后，再切换过去
+git reset --hard 6711d17  /// git checkout -b localname commithash
+
+
+然后就可以使用DumpRenderTree直接调用编译好的WebKit来解析引发问题的testcase了
+KitBuild/Debug/ && DYLD_FRAMEWORK_PATH=$VM lldb $VM/DumpRenderTree LayoutTests/js/regress-155776.html
+
+
+真实环境下的调试：
+一旦问题分析清楚，必须回到Safari下才算是真正的利用过程起点。编译release版的程序：
+
+./Tools/Scripts/build-webkit --release
+然后使用提供的辅助脚本，就能自动将WebKit库注入到浏览器中，使Safari运行在刚刚编译好的WebKit之上：
+
+./Tools/Scripts/run-safari
+
+
+引用：
+http://eternalsakura13.com/2018/04/19/js_crash_debug/
+http://www.hhjack.com/debug_webkit_under_osx/
+https://webkit.org/blog/6411/javascriptcore-csi-a-crash-site-investigation-story/ 这里讲了如何调试一个bug
